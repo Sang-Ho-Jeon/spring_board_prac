@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.fastcampus.ch4.dao.BoardMapper">
+<!--
+    1. 게시물 한개 읽기
+    2. 게시물 전체 읽기
+    3. 게시물 페이지 읽기(offset, pageSize)
+    4. 게시물 등록
+    5. 게시물 수정
+    6. 게시물 조회수 증가
+    7. 게시물 작성자 삭제
+    8. 게시물 관리자 삭제
+    9. 게시물 전체 삭제
+    10. 게시물 개수 카운트
+ -->
+    <sql id="selectFromBoard">
+        SELECT bno, title, content, writer, view_cnt, comment_cnt, reg_date, up_date
+        FROM board
+    </sql>
+
+    <select id="select" parameterType="int" resultType="BoardDto">
+        <include refid="selectFromBoard"/>
+        WHERE bno = #{bno}
+    </select>
+
+    <select id="selectAll" resultType="BoardDto">
+        <include refid="selectFromBoard"/>
+        ORDER BY reg_date DESC, bno DESC
+    </select>
+
+    <select id="selectPage" parameterType="map" resultType="BoardDto">
+        <include refid="selectFromBoard"/>
+        ORDER BY reg_date DESC, bno DESC
+        LIMIT #{offset}, #{pageSize}
+    </select>
+
+    <insert id="insert" parameterType="BoardDto">
+        insert into board (title, content, writer)
+        values (#{title}, #{content}, #{writer});
+    </insert>
+
+    <update id="update" parameterType="BoardDto">
+        update board
+        set title = #{title},
+            content = #{content},
+            up_date = now()
+        where bno = #{bno}
+    </update>
+
+    <update id="increaseViewCnt" parameterType="int">
+        update board
+        set view_cnt = view_cnt + 1
+        where bno = #{bno}
+    </update>
+
+    <delete id="delete" parameterType="map">
+        DELETE FROM board WHERE bno = #{bno} and writer = #{writer}
+    </delete>
+
+    <delete id="deleteForAdmin" parameterType="int">
+        DELETE FROM board WHERE bno = #{bno}
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE FROM board
+    </delete>
+
+    <select id="count" resultType="int">
+        SELECT COUNT(*) FROM board
+    </select>
+</mapper>
