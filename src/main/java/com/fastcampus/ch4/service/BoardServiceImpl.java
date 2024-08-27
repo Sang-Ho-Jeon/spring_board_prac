@@ -24,7 +24,7 @@ public class BoardServiceImpl implements BoardService {
     */
 
     @Override
-    public BoardDto read(Integer bno) throws Exception {
+    public BoardDto read(Integer bno) {
         BoardDto boardDto = boardDao.select(bno);
         boardDao.increaseViewCnt(bno);
 
@@ -32,32 +32,32 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
-    public List<BoardDto> getList() throws Exception {
+    public List<BoardDto> getList() {
         return boardDao.selectAll();
     }
 
     @Override
-    public List<BoardDto> getPage(Map map) throws Exception {
+    public List<BoardDto> getPage(Map map) {
         return boardDao.selectPage(map);
     }
 
     @Override
-    public int write(BoardDto boardDto) throws Exception {
+    public int write(BoardDto boardDto) {
         return boardDao.insert(boardDto);
     }
 
     @Override
-    public int modify(BoardDto boardDto) throws Exception {
+    public int modify(BoardDto boardDto) {
         return boardDao.update(boardDto);
     }
 
     @Override
-    public int remove(Integer bno, String writer) throws Exception {
+    public int remove(Integer bno, String writer) {
         return boardDao.delete(bno, writer);
     }
 
     @Override
-    public int getCount() throws Exception {
+    public int getCount() {
         return boardDao.count();
     }
 }

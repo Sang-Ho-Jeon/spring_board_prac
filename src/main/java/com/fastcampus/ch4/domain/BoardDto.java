@@ -28,6 +28,20 @@ public class BoardDto {
     }
 
     @Override
+    public String toString() {
+        return "BoardDto{" +
+                "bno=" + bno +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", writer='" + writer + '\'' +
+                ", view_cnt=" + view_cnt +
+                ", comment_cnt=" + comment_cnt +
+                ", reg_date=" + reg_date +
+                ", up_date=" + up_date +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(bno, title, content, writer);
     }
@@ -94,19 +108,5 @@ public class BoardDto {
 
     public void setUp_date(Date up_date) {
         this.up_date = up_date;
-    }
-
-    @Override
-    public String toString() {
-        return "BoardDto{" +
-                "bno=" + bno +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", writer='" + writer + '\'' +
-                ", view_cnt=" + view_cnt +
-                ", comment_cnt=" + comment_cnt +
-                ", reg_date=" + reg_date +
-                ", up_date=" + up_date +
-                '}';
     }
 }

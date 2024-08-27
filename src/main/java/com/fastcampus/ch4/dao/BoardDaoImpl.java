@@ -29,46 +29,46 @@ public class BoardDaoImpl implements BoardDao {
     */
 
     @Override
-    public BoardDto select(Integer bno) throws Exception { // 발생한 예외를 서비스 계층으로 넘겨줘야됨
+    public BoardDto select(Integer bno) { // 발생한 예외를 서비스 계층으로 넘겨줘야됨
         return session.selectOne(namespace + "select", bno);
     }
     @Override
-    public List<BoardDto> selectAll() throws Exception {
+    public List<BoardDto> selectAll(){
         return session.selectList(namespace + "selectAll");
     }
     @Override
-    public List<BoardDto> selectPage(Map map) throws Exception {
+    public List<BoardDto> selectPage(Map map) {
         return session.selectList(namespace + "selectPage", map);
     }
 
     @Override
-    public int insert(BoardDto boardDto) throws Exception {
+    public int insert(BoardDto boardDto) {
         return session.insert(namespace + "insert", boardDto);
     }
 
     @Override
-    public int update(BoardDto boardDto) throws Exception {
+    public int update(BoardDto boardDto) {
         return session.update(namespace + "update", boardDto);
     }
     @Override
-    public int increaseViewCnt(Integer bno) throws Exception {
+    public int increaseViewCnt(Integer bno) {
         return session.update(namespace + "increaseViewCnt", bno);
     }
 
     @Override
-    public int delete(Integer bno, String writer) throws Exception {
+    public int delete(Integer bno, String writer) {
         Map map = new HashMap();
         map.put("bno", bno);
         map.put("writer", writer);
         return session.delete(namespace + "delete", map);
     }
     @Override
-    public int deleteAll() throws Exception {
+    public int deleteAll() {
         return session.delete(namespace + "deleteAll");
     }
 
     @Override
-    public int count() throws Exception {
+    public int count() {
         return session.selectOne(namespace + "count");
     }
 }

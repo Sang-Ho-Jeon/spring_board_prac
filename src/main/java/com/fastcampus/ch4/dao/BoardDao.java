@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 public interface BoardDao {
-    BoardDto select(Integer bno) throws Exception;
-    List<BoardDto> selectAll() throws Exception;
-    List<BoardDto> selectPage(Map map) throws Exception;
+    BoardDto select(Integer bno);
+    List<BoardDto> selectAll();
+    List<BoardDto> selectPage(Map map);
 
-    int insert(BoardDto boardDto) throws Exception;
+    int insert(BoardDto boardDto);
 
-    int update(BoardDto boardDto) throws Exception;
-    int increaseViewCnt(Integer bno) throws Exception;
+    int update(BoardDto boardDto);
+    int increaseViewCnt(Integer bno);
 
-    int delete(Integer bno, String writer) throws Exception;
-    int deleteAll() throws Exception;
+    int delete(Integer bno, String writer);
+    int deleteAll();
 
-    int count() throws Exception;
+    int count();
 }

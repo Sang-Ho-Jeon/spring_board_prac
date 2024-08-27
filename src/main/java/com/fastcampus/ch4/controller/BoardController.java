@@ -4,11 +4,12 @@ import com.fastcampus.ch4.domain.BoardDto;
 import com.fastcampus.ch4.domain.PageHandler;
 import com.fastcampus.ch4.service.BoardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +21,27 @@ import java.util.Map;
 @Controller
 @RequestMapping("/board")
 public class BoardController {
+    @ExceptionHandler({DataIntegrityViolationException.class, DuplicateKeyException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String catcher() {
+        return "error";
+    }
+
     @Autowired
     BoardService boardService;
+
+    @PostMapping("/write")
+    public String write(BoardDto boardDto) {
+        boardService.write(boardDto);
+    }
+    @GetMapping("/write")
+    public String write(Model m) {
+        /*
+            (1) mode(읽기/수정 상태)를 모델로 board.jsp에게 넘겨주기
+         */
+        m.addAttribute("mode", "new");
+        return "board"; // 읽기와 쓰기에 사용. 쓰기에 사용할때는 mode = new
+    }
 
     @PostMapping("/remove")
     public String remove(Integer bno, Integer page, Integer pageSize, Model m, HttpSession session, RedirectAttributes rattr) {
@@ -35,8 +55,8 @@ public class BoardController {
         String writer = (String)session.getAttribute("id");
 
         try {
-            m.addAttribute("page", page);
-            m.addAttribute("pageSize", pageSize);
+            rattr.addAttribute("page", page);
+            rattr.addAttribute("pageSize", pageSize);
 
             int rowCnt = boardService.remove(bno,writer);
             if (rowCnt != 1)
@@ -51,20 +71,17 @@ public class BoardController {
         return "redirect:/board/list";
     }
 
-    @GetMapping("/read")
-    public String read(Integer bno, Integer page, Integer pageSize, Model m) {
+    @GetMapping("/read/{bno}")
+    public String read(@PathVariable Integer bno, Integer page, Integer pageSize, Model m) {
         /*
             (1) boardService.read(bno)로 게시물 하나(BoardDto) 읽어오기
             (2) boardDto객체와 page, pageSize를 board.jsp에 model로 전달
          */
-        try {
-            BoardDto boardDto = boardService.read(bno);
-            m.addAttribute(boardDto);
-            m.addAttribute("page", page);
-            m.addAttribute("pageSize", pageSize);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+
+        BoardDto boardDto = boardService.read(bno);
+        m.addAttribute(boardDto);
+        m.addAttribute("page", page);
+        m.addAttribute("pageSize", pageSize);
 
         return "board";
     }
@@ -83,20 +100,17 @@ public class BoardController {
         if(page == null) page = 1;
         if(pageSize == null) pageSize = 10;
 
-        try {
-            Map map = new HashMap();
-            map.put("offset", (page - 1) * pageSize);
-            map.put("pageSize", pageSize);
 
-            int totalCnt = boardService.getCount();
-            PageHandler ph = new PageHandler(totalCnt, page, pageSize);
+        Map map = new HashMap();
+        map.put("offset", (page - 1) * pageSize);
+        map.put("pageSize", pageSize);
 
-            List<BoardDto> list = boardService.getPage(map);
-            m.addAttribute("list", list);
-            m.addAttribute("ph", ph);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        int totalCnt = boardService.getCount();
+        PageHandler ph = new PageHandler(totalCnt, page, pageSize);
+
+        List<BoardDto> list = boardService.getPage(map);
+        m.addAttribute("list", list);
+        m.addAttribute("ph", ph);
 
         return "boardList"; // 로그인을 한 상태이면, 게시판 화면으로 이동
     }

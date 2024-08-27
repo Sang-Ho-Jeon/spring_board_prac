@@ -25,6 +25,7 @@
   if(msg == "DEL_ERR") alert("삭제 실패 ㅠㅠ");
 </script>
 <div style="text-align:center">
+  <button type="button" id="writeBtn" onclick="location.href='<c:url value="/board/write"/>'">글쓰기</button>
   <table border="1">
     <tr>
       <th>번호</th>

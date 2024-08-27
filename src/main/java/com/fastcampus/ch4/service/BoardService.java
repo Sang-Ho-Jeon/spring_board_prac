@@ -6,17 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 public interface BoardService {
-    BoardDto read(Integer bno) throws Exception;
+    BoardDto read(Integer bno);
 
-    List<BoardDto> getList() throws Exception;
+    List<BoardDto> getList();
 
-    List<BoardDto> getPage(Map map) throws Exception;
+    List<BoardDto> getPage(Map map);
 
-    int write(BoardDto boardDto) throws Exception;
+    int write(BoardDto boardDto);
 
-    int modify(BoardDto boardDto) throws Exception;
+    int modify(BoardDto boardDto);
 
-    int remove(Integer bno, String writer) throws Exception;
+    int remove(Integer bno, String writer);
 
-    int getCount() throws Exception;
+    int getCount();
 }
