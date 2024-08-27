@@ -46,7 +46,7 @@
         set title = #{title},
             content = #{content},
             up_date = now()
-        where bno = #{bno}
+        where bno = #{bno} and writer = #{writer}
     </update>
 
     <update id="increaseViewCnt" parameterType="int">

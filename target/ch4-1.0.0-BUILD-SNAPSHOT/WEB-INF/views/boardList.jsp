@@ -1,5 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<c:set var="loginId" value="${pageContext.request.getSession(false)==null ? '' : pageContext.request.session.getAttribute('id')}"/>
+<c:set var="loginOutLink" value="${loginId=='' ? '/login/login' : '/login/logout'}"/>
+<c:set var="loginOut" value="${loginId=='' ? 'Login' : 'ID='+=loginId}"/>
 
 <!DOCTYPE html>
 <html>
@@ -14,15 +17,17 @@
     <li id="logo">fastcampus</li>
     <li><a href="<c:url value='/'/>">Home</a></li>
     <li><a href="<c:url value='/board/list'/>">Board</a></li>
-    <li><a href="<c:url value='/login/login'/>">login</a></li>
+    <li><a href="<c:url value='${loginOutLink}'/>">${loginOut}</a></li>
     <li><a href="<c:url value='/register/add'/>">Sign in</a></li>
-    <li><a href=""><i class="fas fa-search small"></i></a></li>
+    <li><a href=""><i class="fa fa-search"></i></a></li>
   </ul>
 </div>
 <script>
   let msg = "${msg}";
   if(msg == "DEL_OK") alert("삭제 성공!");
   if(msg == "DEL_ERR") alert("삭제 실패 ㅠㅠ");
+  if(msg == "WRT_OK") alert("글쓰기 성공!");
+  if(msg == "MOD_OK") alert("수정 성공!");
 </script>
 <div style="text-align:center">
   <button type="button" id="writeBtn" onclick="location.href='<c:url value="/board/write"/>'">글쓰기</button>

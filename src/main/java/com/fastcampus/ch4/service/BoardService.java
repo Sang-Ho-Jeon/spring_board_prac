@@ -12,7 +12,7 @@ public interface BoardService {
 
     List<BoardDto> getPage(Map map);
 
-    int write(BoardDto boardDto);
+    int write(BoardDto boardDto) throws Exception;
 
     int modify(BoardDto boardDto);
 

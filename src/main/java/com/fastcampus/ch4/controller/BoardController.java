@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/board")
 public class BoardController {
-    @ExceptionHandler({DataIntegrityViolationException.class, DuplicateKeyException.class})
+    @ExceptionHandler({DataIntegrityViolationException.class, DuplicateKeyException.class, UncategorizedSQLException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String catcher() {
         return "error";
@@ -30,14 +31,58 @@ public class BoardController {
     @Autowired
     BoardService boardService;
 
+    @PostMapping("/modify")
+    public String modify(BoardDto boardDto, Integer page, Integer pageSize, HttpSession session, Model m, RedirectAttributes rattr) {
+        /*
+            (1) 작성자 id 세션에서 받아와 boardDto 객체에 저장 - 작성자와 수정자 일치하는지 검증
+            (2) boardDto를 서버로 전송
+            (3) 성공시 page, pageSize /board/list로 전달하고 성공 메시지 띄우기
+            (4) 실패시 boardDto객체를 다시 board.jsp로 넘겨서 수정 내용을 유지시키고 실패 메시지 띄우기
+         */
+        System.out.println(page + " "+ pageSize);
+        String writer = (String) session.getAttribute("id");
+        boardDto.setWriter(writer);
+        try {
+            int rowCnt = boardService.modify(boardDto);
+            if (rowCnt != 1)
+                throw new Exception("board modify failed");
+            rattr.addAttribute("page", page);
+            rattr.addAttribute("pageSize", pageSize);
+            rattr.addFlashAttribute("msg", "MOD_OK");
+            return "redirect:/board/list";
+        } catch (Exception e) {
+            m.addAttribute(boardDto);
+            m.addAttribute("msg", "MOD_ERR");
+            return "board";
+        }
+    }
+
     @PostMapping("/write")
-    public String write(BoardDto boardDto) {
-        boardService.write(boardDto);
+    public String write(BoardDto boardDto, HttpSession session, Model m, RedirectAttributes rattr) {
+        /*
+            (1) 작성자 id 세션객체에서 받아서 boardDto에 저장
+            (2) DB에 게시글 저장
+            (3) 성공시 /board/list로 redirect 후 성공 메시지
+            (4) 실패시 boardDto와 실패 메시지를 모델에 담아서 board.jsp에 전달
+         */
+        String writer = (String)session.getAttribute("id");
+        boardDto.setWriter(writer);
+        try {
+            int rowCnt = boardService.write(boardDto);
+            if (rowCnt != 1)
+                throw new Exception("board write failed");
+            rattr.addFlashAttribute("msg", "WRT_OK");
+            return "redirect:/board/list";
+        } catch (Exception e) {
+            m.addAttribute(boardDto);
+            m.addAttribute("msg", "WRT_ERR");
+            return "board";
+        }
     }
     @GetMapping("/write")
     public String write(Model m) {
         /*
-            (1) mode(읽기/수정 상태)를 모델로 board.jsp에게 넘겨주기
+            (1) mode(읽기/수정 상태)를 모델에 저장하고 board.jsp에게 넘겨주기
          */
         m.addAttribute("mode", "new");
         return "board"; // 읽기와 쓰기에 사용. 쓰기에 사용할때는 mode = new
@@ -55,24 +100,23 @@ public class BoardController {
         String writer = (String)session.getAttribute("id");
 
         try {
+            rattr.addAttribute("msg", "DEL_ERR");
             rattr.addAttribute("page", page);
             rattr.addAttribute("pageSize", pageSize);
 
             int rowCnt = boardService.remove(bno,writer);
             if (rowCnt != 1)
                 throw new Exception("board remove error");
-
             rattr.addFlashAttribute("msg", "DEL_OK");
         } catch (Exception e) {
-            e.printStackTrace();
             rattr.addFlashAttribute("msg", "DEL_ERR");
         }
 
         return "redirect:/board/list";
     }
 
-    @GetMapping("/read/{bno}")
-    public String read(@PathVariable Integer bno, Integer page, Integer pageSize, Model m) {
+    @GetMapping("/read")
+    public String read( Integer bno, Integer page, Integer pageSize, Model m) {
         /*
             (1) boardService.read(bno)로 게시물 하나(BoardDto) 읽어오기
             (2) boardDto객체와 page, pageSize를 board.jsp에 model로 전달
